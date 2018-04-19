@@ -1,0 +1,71 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+
+    <style>
+    .mySlides {display:none;}
+    </style>
+</head>
+
+<body>
+
+<button onclick="lottery()">Go!</button>
+
+<div class="w3-content w3-section" style="max-width:700px">
+    <img class="mySlides w3-animate-bottom" src="1.png" style="width:100%">
+    <img class="mySlides w3-animate-bottom" src="2.png" style="width:100%">
+    <img class="mySlides w3-animate-bottom" src="3.png" style="width:100%">
+    <img class="mySlides w3-animate-bottom" src="4.png" style="width:100%">
+    <img class="mySlides w3-animate-bottom" src="5.png" style="width:100%">
+    <img class="mySlides w3-animate-bottom" src="6.png" style="width:100%">
+    <img class="mySlides w3-animate-bottom" src="8.png" style="width:100%">
+    <img class="mySlides w3-animate-bottom" src="9.png" style="width:100%">
+    <img class="mySlides w3-animate-bottom" src="10.png" style="width:100%">
+    <img class="mySlides w3-animate-bottom" src="11.png" style="width:100%">
+</div>
+
+<script>
+var myIndex = 0;
+var interval = 0;
+
+function lottery() {
+    var x = document.getElementsByClassName("mySlides");
+    myIndex = Math.floor(Math.random() * x.length);
+    interval = 1;
+    carousel();
+}
+
+function step2() {
+    alert("Done!"); 
+}
+
+function carousel() {
+    var i;
+    var x = document.getElementsByClassName("mySlides");
+    for (i = 0; i < x.length; i++) {
+        x[i].style.display = "none";  
+    }
+    myIndex++;
+    if (myIndex > x.length) {myIndex = 1}    
+    x[myIndex-1].style.display = "block";  
+    if(interval <= 1200) { 
+        setTimeout(carousel, interval);  
+    }
+    else {
+        setTimeout(step2, interval);
+    }
+
+    if(interval <= 700) {
+        interval *= 1.3;
+    } else if(interval <= 1000) {
+        interval *= 1.2;
+    } else {
+        interval *= 1.1;
+    }
+}
+</script>
+
+</body>
+
+</html>
