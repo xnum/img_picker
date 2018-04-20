@@ -3,16 +3,19 @@
 <head>
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+
     <style>
     .mySlides {display:none;}
-    </style>
+   </style>
 </head>
 
 <body>
 
 <button onclick="lottery()">Go!</button>
 
-<div class="w3-content w3-section" style="max-width:700px">
+<div id="slides" class="w3-content w3-section" style="max-width:700px">
+<!--
     <img class="mySlides w3-animate-bottom" src="1.png" style="width:100%">
     <img class="mySlides w3-animate-bottom" src="2.png" style="width:100%">
     <img class="mySlides w3-animate-bottom" src="3.png" style="width:100%">
@@ -23,21 +26,62 @@
     <img class="mySlides w3-animate-bottom" src="9.png" style="width:100%">
     <img class="mySlides w3-animate-bottom" src="10.png" style="width:100%">
     <img class="mySlides w3-animate-bottom" src="11.png" style="width:100%">
+-->
 </div>
 
 <script>
 var myIndex = 0;
 var interval = 0;
+var item = "undefined";
+var pos = [100, 100];
+
+function init() {
+    $.get('/data', function(data) {
+        var data = JSON.parse(data);
+        for(var img_name in data) {
+            $("#slides").append(
+                $("<img>").addClass("mySlides")
+                          .addClass("w3-animate-bottom")
+                          .attr("src", img_name)
+                          .width("100%")
+                          .data(data[img_name]));
+        }
+    });
+}
 
 function lottery() {
     var x = document.getElementsByClassName("mySlides");
     myIndex = Math.floor(Math.random() * x.length);
     interval = 1;
-    carousel();
+    setTimeout(carousel(), 500);
 }
 
 function step2() {
-    alert("Done!"); 
+    var x = document.getElementsByClassName("mySlides");
+    item = x.item(myIndex);
+
+    data = $(item).data();
+    arr = Object.keys(data).map(key => data[key]);
+    pos = arr[Math.floor(Math.random() * arr.length)].slice();
+    var scaleHeight = item.height / item.naturalHeight;
+    var scaleWidth = item.width / item.naturalWidth;
+    console.log(pos)
+    console.log(scaleHeight);
+    console.log(scaleWidth);
+    pos[2] *= scaleWidth;
+    pos[3] *= scaleHeight;
+    pos[0] *= scaleWidth;
+    pos[0] += pos[2] / 2;
+    pos[1] *= scaleHeight;
+    pos[1] += pos[3] / 2;
+    
+    fixMask();
+}
+
+function fixMask() {
+    //requestAnimationFrame(fixMask);
+    var strImage = '-webkit-radial-gradient(' + pos[0] + 'px ' + pos[1] + 'px,' + pos[2] + 'px ' + pos[3] + 'px, rgba(0, 0, 0, 1) 0%,rgba(0, 0, 0, 1) 70%, rgba(255, 255, 255, 0.1) 80%, rgba(255, 255, 255, 0.1) 100%)';
+    item.style.WebkitMaskImage = strImage;
 }
 
 function carousel() {
@@ -47,15 +91,19 @@ function carousel() {
         x[i].style.display = "none";  
     }
     myIndex++;
-    if (myIndex > x.length) {myIndex = 1}    
-    x[myIndex-1].style.display = "block";  
-    if(interval <= 1200) { 
+    if (myIndex >= x.length) {
+        myIndex = 0
+    }    
+
+    x.item(myIndex).style.display = "block";  
+    if(false) { //interval <= 1200) { 
         setTimeout(carousel, interval);  
     }
     else {
         setTimeout(step2, interval);
     }
 
+/*
     if(interval <= 700) {
         interval *= 1.3;
     } else if(interval <= 1000) {
@@ -63,7 +111,11 @@ function carousel() {
     } else {
         interval *= 1.1;
     }
+    */
 }
+
+init();
+
 </script>
 
 </body>
