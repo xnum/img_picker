@@ -14,26 +14,18 @@
 
 <button onclick="lottery()">Go!</button>
 
-<div id="slides" class="w3-content w3-section" style="max-width:700px">
-<!--
-    <img class="mySlides w3-animate-bottom" src="1.png" style="width:100%">
-    <img class="mySlides w3-animate-bottom" src="2.png" style="width:100%">
-    <img class="mySlides w3-animate-bottom" src="3.png" style="width:100%">
-    <img class="mySlides w3-animate-bottom" src="4.png" style="width:100%">
-    <img class="mySlides w3-animate-bottom" src="5.png" style="width:100%">
-    <img class="mySlides w3-animate-bottom" src="6.png" style="width:100%">
-    <img class="mySlides w3-animate-bottom" src="8.png" style="width:100%">
-    <img class="mySlides w3-animate-bottom" src="9.png" style="width:100%">
-    <img class="mySlides w3-animate-bottom" src="10.png" style="width:100%">
-    <img class="mySlides w3-animate-bottom" src="11.png" style="width:100%">
--->
+<div id="slides" class="w3-content w3-section" style="max-width:700px; max-height: 100%; overflow: hidden; position: relative;">
 </div>
 
 <script>
 var myIndex = 0;
 var interval = 0;
 var item = "undefined";
-var pos = [100, 100];
+var pos = [];
+var curr_pos = [];
+var img_size = [];
+var curr_scale = 1.0;
+
 
 function init() {
     $.get('/data', function(data) {
@@ -74,20 +66,59 @@ function step2() {
     pos[0] += pos[2] / 2;
     pos[1] *= scaleHeight;
     pos[1] += pos[3] / 2;
+
+    curr_pos[0] = item.width;
+    curr_pos[1] = item.height;
+    img_size[0] = item.width;
+    img_size[1] = item.height;
     
+	curr_scale = 1;
+
     fixMask();
 }
 
+function zoom(){
+	var end_scale = img_size[0] / pos[2];
+
+	curr_scale = end_scale;
+
+	var settings = {
+		width: img_size[0] * curr_scale, 
+		height: img_size[1] * curr_scale,
+		top: (-pos[1]+pos[3]/2) * curr_scale + 'px',
+		left: (-pos[0]+pos[2]/2) * curr_scale + 'px',
+		display: 'none',
+	};
+
+	$(item).css(settings);
+    item.style.WebkitMaskImage = "";
+	$(item).fadeIn();
+}
+
 function fixMask() {
-    //requestAnimationFrame(fixMask);
-    var strImage = '-webkit-radial-gradient(' + pos[0] + 'px ' + pos[1] + 'px,' + pos[2] + 'px ' + pos[3] + 'px, rgba(0, 0, 0, 1) 0%,rgba(0, 0, 0, 1) 70%, rgba(255, 255, 255, 0.1) 80%, rgba(255, 255, 255, 0.1) 100%)';
+    const duration = 80; // frames
+
+    var width = curr_pos[0];
+    var height = curr_pos[1];
+    if(curr_pos[0] >= pos[2]) curr_pos[0] -= (img_size[0] - pos[2]) / duration;
+    if(curr_pos[1] >= pos[3]) curr_pos[1] -= (img_size[1] - pos[3]) / duration;
+
+    var strImage = '-webkit-radial-gradient(' + pos[0] + 'px ' + pos[1] + 'px,' + width + 'px ' + height + 'px, rgba(0, 0, 0, 1) 0%,rgba(0, 0, 0, 1) 70%, rgba(255, 255, 255, 0.1) 80%, rgba(255, 255, 255, 0.1) 100%)';
     item.style.WebkitMaskImage = strImage;
+
+	if(curr_pos[0] >= pos[2] || curr_pos[1] >= pos[3]) {
+		requestAnimationFrame(fixMask);
+	} else {
+		requestAnimationFrame(zoom);
+	}
 }
 
 function carousel() {
     var i;
     var x = document.getElementsByClassName("mySlides");
     for (i = 0; i < x.length; i++) {
+		$(x).removeAttr("style").width("100%");
+		
         x[i].style.display = "none";  
     }
     myIndex++;
@@ -96,14 +127,13 @@ function carousel() {
     }    
 
     x.item(myIndex).style.display = "block";  
-    if(false) { //interval <= 1200) { 
+    if(interval <= 1200) { 
         setTimeout(carousel, interval);  
     }
     else {
         setTimeout(step2, interval);
     }
 
-/*
     if(interval <= 700) {
         interval *= 1.3;
     } else if(interval <= 1000) {
@@ -111,7 +141,6 @@ function carousel() {
     } else {
         interval *= 1.1;
     }
-    */
 }
 
 init();
