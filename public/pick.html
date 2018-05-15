@@ -36,29 +36,19 @@ var img_size = [];
 var curr_scale = 1.0;
 var goal = 0;
 
-var m_w = 123456789;
-var m_z = 987654321;
-var mask = 0xffffffff;
-
-// Takes any integer
-function seed(i) {
-    m_w = i;
-    m_z = 987654321;
-}
-
-// Returns number between 0 (inclusive) and 1.0 (exclusive),
-// just like Math.random().
-function random()
-{
-    m_z = (36969 * (m_z & 65535) + (m_z >> 16)) & mask;
-    m_w = (18000 * (m_w & 65535) + (m_w >> 16)) & mask;
-    var result = ((m_z << 16) + m_w) & mask;
-    result /= 4294967296;
-    return result + 0.5;
-}
-
 function init() {
-    $.get('/data', function(data) {
+
+    var url_string = window.location.href;
+    var url = new URL(url_string);
+    var c = url.searchParams.get("c");
+    console.log(c);
+
+    var data_url = '/data';
+    if(c != null) {
+        data_url += '?c=' + c;
+    }
+
+    $.get(data_url, function(data) {
         var data = JSON.parse(data);
         for(var img_name in data) {
             $("#slides").append(
@@ -79,7 +69,6 @@ function lottery() {
     var x = document.getElementsByClassName("mySlides");
     console.log(x);
     myIndex = 0;
-    //myIndex = Math.floor(Math.random() * x.length);
     goal = Math.floor(Math.random() * x.length);
     goal += Math.floor(Math.random() * 3) * x.length;
     if(goal==0) goal = x.length;
