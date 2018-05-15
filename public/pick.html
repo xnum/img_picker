@@ -35,13 +35,17 @@ var curr_pos = [];
 var img_size = [];
 var curr_scale = 1.0;
 var goal = 0;
+var t = 0;
 
 function init() {
 
     var url_string = window.location.href;
     var url = new URL(url_string);
     var c = url.searchParams.get("c");
-    console.log(c);
+    t = url.searchParams.get("t");
+    if(t == null) {
+        t = Date.now();
+    }
 
     var data_url = '/data';
     if(c != null) {
@@ -69,8 +73,15 @@ function lottery() {
     var x = document.getElementsByClassName("mySlides");
     console.log(x);
     myIndex = 0;
-    goal = Math.floor(Math.random() * x.length);
-    goal += Math.floor(Math.random() * 3) * x.length;
+
+    // select pic
+    goal = Date.now() % x.length;
+
+    // loop rounds
+    goal += (Date.now() % 3) * x.length;
+
+    //goal = Math.floor(Math.random() * x.length);
+    //goal += Math.floor(Math.random() * 3) * x.length;
     if(goal==0) goal = x.length;
     console.log(goal);
     interval = 600;
@@ -87,7 +98,10 @@ function step2() {
     item = x[0];
 
     arr = Object.keys(data).map(key => data[key]);
-    pos = arr[Math.floor(Math.random() * arr.length)].slice();
+
+    pos = arr[Date.now() % arr.length].slice();
+    //pos = arr[Math.floor(Math.random() * arr.length)].slice();
+
     var scaleHeight = item.height / item.naturalHeight;
     var scaleWidth = item.width / item.naturalWidth;
     console.log(pos)

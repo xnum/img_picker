@@ -22,8 +22,6 @@ const (
 	DATA    = "data"
 )
 
-var store ImageFaceInfoStore = nil
-
 type Message struct {
 	Code int
 	Msg  string
@@ -41,7 +39,16 @@ func writeResp(msg *Message, w http.ResponseWriter) {
 }
 
 func dataHandler(w http.ResponseWriter, req *http.Request) {
-	store, _ = StoreNew(DATA)
+	if err := req.ParseForm(); err != nil {
+		log.Fatal(err)
+	}
+
+	store_dest := req.FormValue("c")
+	if store_dest == "" {
+		store_dest = DATA
+	}
+
+	store, _ := StoreNew(store_dest)
 	store.Check(WWWROOT)
 	str := store.Jsonify()
 	io.WriteString(w, str)
@@ -133,8 +140,18 @@ func uploadHandler(w http.ResponseWriter, req *http.Request) {
 		}
 	}
 
+	store_dest := req.FormValue("store")
+	if store_dest == "" {
+		store_dest = DATA
+	}
+
+	store, err := StoreNew(store_dest)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	store.Add(filename, resp.Pos)
-	store.Save(DATA)
+	store.Save(store_dest)
 }
 
 func input_check(filename string) (string, error) {
@@ -190,11 +207,6 @@ func split_image(filename, target_name string, pos []string) error {
 }
 
 func main() {
-	var err error
-	store, err = StoreNew(DATA)
-	if err != nil {
-		log.Fatal(err)
-	}
 
 	http.HandleFunc("/upload", uploadHandler)
 	http.HandleFunc("/data", dataHandler)
