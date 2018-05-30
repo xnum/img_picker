@@ -18,10 +18,10 @@
 
 <button onclick="lottery()">Go!</button>
 
-<div id="result" style="max-height: 600px; overflow: hidden; position: relative;">
+<div id="result" style="max-height: 730px; overflow: hidden; position: relative;">
 </div>
 
-<div id="main" style="overflow: hidden; width: 100%; height: 600px;">
+<div id="main" style="overflow: hidden; width: 100%; height: 730px;">
 <div id="slides" style="width: 99999px;">
 </div>
 </div>
@@ -35,7 +35,7 @@ var curr_pos = [];
 var img_size = [];
 var curr_scale = 1.0;
 var goal = 0;
-var t = 0;
+var img_cheat_goal = -1;
 
 function init() {
 
@@ -43,8 +43,8 @@ function init() {
     var url = new URL(url_string);
     var c = url.searchParams.get("c");
     t = url.searchParams.get("t");
-    if(t == null) {
-        t = Date.now();
+    if(t != null) {
+        img_cheat_goal = parseInt(t);
     }
 
     var data_url = '/data';
@@ -76,12 +76,13 @@ function lottery() {
 
     // select pic
     goal = Date.now() % x.length;
+    if(img_cheat_goal >= 0)goal = img_cheat_goal;
 
     // loop rounds
-    goal += (Date.now() % 3) * x.length;
+    //goal += (Date.now() % 3) * x.length;
 
     //goal = Math.floor(Math.random() * x.length);
-    //goal += Math.floor(Math.random() * 3) * x.length;
+    goal += Math.floor(Math.random() * 2+1) * x.length;
     if(goal==0) goal = x.length;
     console.log(goal);
     interval = 600;
@@ -99,7 +100,9 @@ function step2() {
 
     arr = Object.keys(data).map(key => data[key]);
 
-    pos = arr[Date.now() % arr.length].slice();
+    var pos_index = (Math.floor(Date.now() / 13)) % arr.length;
+    console.log(pos_index);
+    pos = arr[pos_index].slice();
     //pos = arr[Math.floor(Math.random() * arr.length)].slice();
 
     var scaleHeight = item.height / item.naturalHeight;
@@ -157,7 +160,7 @@ function fixMask() {
 	if(curr_pos[0] >= pos[2] || curr_pos[1] >= pos[3]) {
 		requestAnimationFrame(fixMask);
 	} else {
-		requestAnimationFrame(zoom);
+		//requestAnimationFrame(zoom);
 	}
 }
 
@@ -165,10 +168,9 @@ function go() {
 
     var x = document.getElementsByClassName("mySlides");
     $("#main").animate({ scrollLeft: "+=" + $(x[myIndex]).width() }, interval, function(){
-        myIndex++;
         $(x[(myIndex)%x.length]).clone(true).appendTo("#slides");
-        console.log("goal = " + goal + " Index = " + myIndex);
-        if(goal != myIndex) {
+        //console.log("goal = " + goal + " Index = " + myIndex);
+        if(goal != myIndex++) {
             go();
         } else {
             setTimeout(step2(), 3000);
