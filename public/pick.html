@@ -66,6 +66,16 @@ function init() {
                           .data(data[img_name]))
                 );
         }
+
+        if(img_cheat_goal >= 0) {
+            goal = img_cheat_goal;
+            
+            var x = document.getElementsByClassName("mySlides");
+            var a = x[goal];
+            var b = x[x.length-1];
+            $(a).insertAfter(b);
+            $(b).insertBefore(x[goal+1]);
+        }
     });
 }
 
@@ -76,13 +86,18 @@ function lottery() {
 
     // select pic
     goal = Date.now() % x.length;
-    if(img_cheat_goal >= 0)goal = img_cheat_goal;
+    if(img_cheat_goal >= 0) {
+        goal = x.length-2;
+    }
 
     // loop rounds
     //goal += (Date.now() % 3) * x.length;
 
     //goal = Math.floor(Math.random() * x.length);
-    goal += Math.floor(Math.random() * 2+1) * x.length;
+
+    if(img_cheat_goal == -1)
+        goal += Math.floor(Math.random() * 2+1) * x.length;
+
     if(goal==0) goal = x.length;
     console.log(goal);
     interval = 600;
